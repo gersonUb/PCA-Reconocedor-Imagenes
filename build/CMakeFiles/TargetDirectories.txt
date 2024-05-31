@@ -1,0 +1,3 @@
+/home/gerson/Escritorio/MetodosNumericos/TP2/build/CMakeFiles/my_module.dir
+/home/gerson/Escritorio/MetodosNumericos/TP2/build/CMakeFiles/edit_cache.dir
+/home/gerson/Escritorio/MetodosNumericos/TP2/build/CMakeFiles/rebuild_cache.dir
