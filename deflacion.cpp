@@ -1,17 +1,46 @@
-tuple<std::vector<float>, std::vector<Eigen::VectorXf>> encontrarTodosAutovalAutovec(const Eigen::MatrixXf &matriz, const float tolerancia, int iteraciones) {
-    Eigen::MatrixXf A = matriz;
-    int n = matriz.rows();
-    std::vector<float> autovalores;
-    std::vector<Eigen::VectorXf> autovectores;
+#include <string>
+#include <fstream>
+#include <iostream>
+#include <vector>
+#include <sstream>
+#include <cmath>
+#include <cstdlib>
+#include </usr/include/eigen3/Eigen/Dense> 
+#include <tuple>
 
+using namespace std;
+
+
+vector<tuple<float, Eigen::VectorXf>> metodoPotencia(const Eigen::MatrixXf &matriz, const float tolerancia, int iteraciones){
+
+    vector<tuple<float, Eigen::VectorXf>> resultado;
+    int n = matriz.rows();
     for (int i = 0; i < n; ++i) {
-        auto [autovalor, autovector] = metodoPotencia(A, tolerancia, iteraciones);
-        autovalores.push_back(autovalor);
-        autovectores.push_back(autovector);
+        
+        Eigen::VectorXf q(n);
+        for(int i = 0; i < n; i++){
+            q(i) = rand();
+        }
+        q.normalize();
+        Eigen::VectorXf q_anterior(n);
+        q_anterior = Eigen::VectorXf::Zero(n);
+
+        while(iteraciones > 0 ){
+            q_anterior = q;
+            q = matriz * q_anterior;
+            q.normalize();
+            iteraciones--;
+        }
+
+        float autovalor = float((q.transpose()) * matriz * q) / float((q.transpose() * q));
+
+    
+        auto par = make_tuple(autovalor, q);
+        resultado.push_back(par);
 
         // Deflación: actualizamos la matriz A
-        A = A - autovalor * (autovector * autovector.transpose());
+        A = A - autovalor * (q * q.transpose());
     }
 
-    return make_tuple(autovalores, autovectores);
+   return resultado;
 }
