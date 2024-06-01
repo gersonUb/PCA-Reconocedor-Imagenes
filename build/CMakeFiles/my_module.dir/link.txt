@@ -1,1 +1,1 @@
-/usr/bin/c++ -fPIC -g -shared  -o my_module.cpython-310-x86_64-linux-gnu.so CMakeFiles/my_module.dir/test.cpp.o 
+/usr/bin/c++ -fPIC -flto -shared  -o my_module.cpython-310-x86_64-linux-gnu.so CMakeFiles/my_module.dir/test.cpp.o 

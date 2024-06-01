@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/gerson/Escritorio/MetodosNumericos/TP2/build",
-  "command": "/usr/bin/c++ -Dmy_module_EXPORTS -I/usr/include/pybind11 -I/usr/include/eigen3 -I/usr/include/eigen3/Eigen -isystem /usr/include/python3.10 -g -fPIC -fvisibility=hidden -o CMakeFiles/my_module.dir/test.cpp.o -c /home/gerson/Escritorio/MetodosNumericos/TP2/test.cpp",
-  "file": "/home/gerson/Escritorio/MetodosNumericos/TP2/test.cpp"
-}
-]

@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
+#include <pybind11/stl.h>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -14,84 +15,45 @@ namespace py = pybind11;
 
 using namespace std;
 
+tuple<vector<float>, vector<Eigen::VectorXf>, vector<int>> metodoPotenciaDeflacion(const Eigen::MatrixXf &matriz, const float tolerancia, int max_iteraciones) {
+    vector<float> autovalores;
+    vector<Eigen::VectorXf> autovectores;
+    vector<int> iteraciones_totales;
 
-//cambiar los vectores por matrices de Eigen
-
-float norma1 (Eigen::VectorXf q1, Eigen::VectorXf q2){
-    float count = 0;
-    for(int i = 0; i < q1.size(); i++){
-        count += abs(q1(i) - q2(i));
-    }
-    return count;
-}
-
-Eigen::MatrixXf conseguirMatriz(const string &file){
-    ifstream source;
-    source.open(file);
-    string linea;
-    Eigen::MatrixXf matriz;
-    float number;
-    int i = 0;
-
-    while(getline(source, linea)){
-        Eigen::VectorXf fila;
-        stringstream iss(linea);
-        int j = 0;
-        while(iss >> number){
-            fila.conservativeResize(fila.size()+1);
-            fila(i) = number;
-            j++;
-        }
-        matriz.conservativeResize(matriz.rows()+1, matriz.cols());
-        matriz.row(i) = fila;
-        i++;
-    }
-
-    source.close();
-    return matriz;
-}
-
-tuple<float, Eigen::VectorXf> metodoPotencia(const Eigen::MatrixXf &matriz, const float tolerancia, int iteraciones){
     int n = matriz.rows();
-    Eigen::VectorXf q(n);
-    for(int i = 0; i < n; i++){
-        q(i) = rand();
-    }
-    q.normalize();
-    Eigen::VectorXf q_anterior(n);
-    q_anterior = Eigen::VectorXf::Zero(n);
+    vector<Eigen::MatrixXf> matrices;
+    matrices.push_back(matriz);
 
-    while(iteraciones > 0 ){
-        q_anterior = q;
-        q = matriz * q_anterior;
+    for (int i = 0; i < n; ++i) {
+        Eigen::MatrixXf matriz_auxiliar = matrices[i];
+        Eigen::VectorXf q = Eigen::VectorXf::Random(n);
         q.normalize();
-        iteraciones--;
-    }
+        Eigen::VectorXf q_anterior = Eigen::VectorXf::Zero(n);
 
-    float autovalor = float((q.transpose()) * matriz * q) / float((q.transpose() * q));
-    return make_tuple(autovalor, q);
+        int iteraciones = max_iteraciones;
+        int contador = 0;
+        while (iteraciones > 0 && (q - q_anterior).cwiseAbs().maxCoeff() >= tolerancia) {
+            q_anterior = q;
+            q = matriz_auxiliar * q_anterior;
+            q.normalize();
+            iteraciones--;
+            contador++;
+        }
+
+        float autovalor = float((q.transpose() * matriz_auxiliar * q)) / float((q.transpose() * q));
+
+        autovalores.push_back(autovalor);
+        autovectores.push_back(q);
+        iteraciones_totales.push_back(contador);
+
+        // Deflación: actualizamos la matriz
+        matrices.push_back(matriz_auxiliar - autovalor * (q * q.transpose()));
+    }
+    return make_tuple(autovalores, autovectores, iteraciones_totales);
 }
 
-// Función para aplicar la transformación de Householder
-Eigen::MatrixXf householder(const Eigen::VectorXf& v) {
-    int n = v.size();
-    Eigen::MatrixXf H = Eigen::MatrixXf::Identity(n, n);
-    Eigen::VectorXf w = v;
 
-    float alpha = v.norm();
-    if (v(0) < 0) {
-        alpha = -alpha;
-    }
-    w(0) += alpha;
-
-    float beta = 2 / w.squaredNorm();
-    H -= beta * (w * w.transpose());
-
-    return H;
-}
-
-PYBIND11_MODULE(my_module, m) {
+PYBIND11_MODULE(my_module, m){
     m.doc() = "aplicacion metodo de la potencia"; // Documentación opcional
-    m.def("metodoPotencia", &metodoPotencia, "Power method for computing eigenvalues");
-    m.def("householder", &householder, "Householder transformation function");
+    m.def("metodoPotenciaDeflacion", &metodoPotenciaDeflacion, "Power method for computing eigenvalues");
 }

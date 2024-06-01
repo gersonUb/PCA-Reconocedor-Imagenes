@@ -6,5 +6,5 @@ CXX_DEFINES = -Dmy_module_EXPORTS
 
 CXX_INCLUDES = -I/usr/include/pybind11 -I/usr/include/eigen3 -I/usr/include/eigen3/Eigen -isystem /usr/include/python3.10
 
-CXX_FLAGS = -g -fPIC -fvisibility=hidden
+CXX_FLAGS = -fPIC -fvisibility=hidden -flto -fno-fat-lto-objects
 
